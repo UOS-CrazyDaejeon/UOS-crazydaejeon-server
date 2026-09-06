@@ -1,5 +1,6 @@
 package com.daejeongwang.uoscrazydaejeon.service;
 
+import com.daejeongwang.uoscrazydaejeon.dto.request.AppleLoginRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.LoginRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.SignUpRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.response.AppleResponse;
@@ -176,6 +177,21 @@ public class AuthService {
         AppleResponse.OAuthToken appleOAuthToken = appleUtil.requestAppleToken(appleAuthorizationCode);
         AppleResponse.AppleProfile appleProfile = appleUtil.parseAppleProfile(appleOAuthToken.getId_token());
 
+        return loginWithAppleProfile(appleProfile);
+    }
+
+    @Transactional
+    public LoginResponse appleLogin(AppleLoginRequest request) {
+        if (request == null || request.identityToken() == null || request.identityToken().isBlank()) {
+            throw new IllegalArgumentException("Apple identityToken이 필요합니다.");
+        }
+
+        AppleResponse.AppleProfile appleProfile = appleUtil.parseAppleProfile(request.identityToken());
+
+        return loginWithAppleProfile(appleProfile);
+    }
+
+    private LoginResponse loginWithAppleProfile(AppleResponse.AppleProfile appleProfile) {
         String appleLoginId = "apple_" + appleProfile.subject();
         String appleMemberName = appleProfile.email() == null ? "Apple User" : appleProfile.email();
 

@@ -2,6 +2,7 @@ package com.daejeongwang.uoscrazydaejeon.controller.user;
 
 import com.daejeongwang.uoscrazydaejeon.config.SwaggerExamples;
 import com.daejeongwang.uoscrazydaejeon.dto.ResultDto;
+import com.daejeongwang.uoscrazydaejeon.dto.request.AppleLoginRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.ReissueRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.response.LoginResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.TokenResponse;
@@ -104,6 +105,14 @@ public class AuthController {
     @GetMapping("/login/apple")
     public ResponseEntity<LoginResponse> appleLogin(@RequestParam("code") String appleAuthorizationCode) {
         LoginResponse response = authService.appleLogin(appleAuthorizationCode);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "애플 네이티브 로그인", description = "iOS에서 받은 Apple identityToken을 검증하고 JWT 토큰을 발급받습니다.")
+    @PostMapping("/apple")
+    public ResponseEntity<LoginResponse> appleLogin(@RequestBody AppleLoginRequest request) {
+        LoginResponse response = authService.appleLogin(request);
 
         return ResponseEntity.ok(response);
     }

@@ -85,6 +85,14 @@ public class AppleUtil {
     }
 
     public AppleResponse.AppleProfile parseAppleProfile(String appleIdToken) {
+        if (!StringUtils.hasText(appleClientId)) {
+            throw new AppleApiException(HttpStatus.INTERNAL_SERVER_ERROR, "애플 client-id 설정이 필요합니다.");
+        }
+
+        if (!StringUtils.hasText(appleIdToken)) {
+            throw new AppleApiException(HttpStatus.UNAUTHORIZED, "애플 ID 토큰이 필요합니다.");
+        }
+
         try {
             String keyId = getKeyId(appleIdToken);
             PublicKey publicKey = getApplePublicKey(keyId);
