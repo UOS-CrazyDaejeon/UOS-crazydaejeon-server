@@ -8,8 +8,10 @@ import com.daejeongwang.uoscrazydaejeon.dto.response.api.RestaurantItemResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.api.ShoppingItemResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.api.TourspotItemResponse;
 import com.daejeongwang.uoscrazydaejeon.entity.Place;
+import com.daejeongwang.uoscrazydaejeon.entity.VisitorCount;
 import com.daejeongwang.uoscrazydaejeon.exception.ResourceNotFoundException;
 import com.daejeongwang.uoscrazydaejeon.repository.PlaceRepository;
+import com.daejeongwang.uoscrazydaejeon.repository.VisitorCountRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,10 @@ public class PlaceService {
     private final RestaurantApiClient restaurantApiClient;
 
     private final PlaceRepository placeRepository;
+    private final VisitorCountRepository visitorCountRepository;
+
+    private static final double TOP_VISITOR_RADIUS_METERS = 1_000.0;
+    private static final int TOP_VISITOR_PLACE_COUNT = 5;
 
     // Admin Place API Service
     @Transactional
@@ -205,6 +211,33 @@ public class PlaceService {
                 .stream()
                 .map(PlaceResponse::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaceResponse> getTopKPlacesByVisitors(Double latitude, Double longitude) {
+        validateCoordinates(latitude, longitude);
+
+        Pageable topK = PageRequest.of(0, TOP_VISITOR_PLACE_COUNT);
+
+        return visitorCountRepository.findTopByLatestVisitorCountNearLocation(
+                        latitude,
+                        longitude,
+                        TOP_VISITOR_RADIUS_METERS,
+                        topK
+                )
+                .stream()
+                .map(VisitorCount::getPlace)
+                .map(PlaceResponse::from)
+                .toList();
+    }
+
+    private void validateCoordinates(Double latitude, Double longitude) {
+        if (latitude == null || longitude == null
+                || !Double.isFinite(latitude) || !Double.isFinite(longitude)
+                || latitude < -90 || latitude > 90
+                || longitude < -180 || longitude > 180) {
+            throw new IllegalArgumentException("유효한 위도와 경도를 입력해야 합니다.");
+        }
     }
 
 }
