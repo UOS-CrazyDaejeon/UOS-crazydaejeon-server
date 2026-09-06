@@ -44,6 +44,9 @@ public class PlaceResponse {
     @Schema(description = "카테고리", example = "테마파크")
     private String categorySmall;
 
+    @Schema(description = "장소 조회 수", example = "12")
+    private Long viewerCount;
+
     public static PlaceResponse from(Place place) {
 
         return new PlaceResponse(
@@ -57,7 +60,26 @@ public class PlaceResponse {
                 place.getDong(),
                 place.getCategoryLarge(),
                 place.getCategoryMedium(),
-                place.getCategorySmall()
+                place.getCategorySmall(),
+                null
+        );
+    }
+
+    public static PlaceResponse from(Place place, Long viewerCount) {
+
+        return new PlaceResponse(
+                place.getId(),
+                place.getPlaceName(),
+                place.getPlaceDescription(),
+                place.getPlaceAddress(),
+                place.getLatitude(),
+                place.getLongitude(),
+                place.getGu(),
+                place.getDong(),
+                place.getCategoryLarge(),
+                place.getCategoryMedium(),
+                place.getCategorySmall(),
+                viewerCount
         );
     }
 }
