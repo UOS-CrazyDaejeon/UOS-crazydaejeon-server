@@ -108,4 +108,31 @@ public class PlaceController {
                 placeService.getNearbyPlacesByPlaceId(placeId, radius, page, size)
         );
     }
+
+    @GetMapping("/top-visitors")
+    @Operation(
+            summary = "내 주변 인기 장소 조회",
+            description = "현재 좌표 기준 1km 이내 장소 중 각 장소의 최신 방문자 수를 기준으로 상위 5개를 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "주변 인기 장소 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 위도 또는 경도",
+                    content = @Content(
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.BAD_REQUEST)
+                    )),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
+                    ))
+    })
+    public ResponseEntity<List<PlaceResponse>> getTopKPlacesByVisitors(
+            @RequestParam(defaultValue = "36.3504") double latitude,
+            @RequestParam(defaultValue = "127.3845") double longitude
+    ) {
+        return ResponseEntity.ok(
+                placeService.getTopKPlacesByVisitors(latitude, longitude)
+        );
+    }
 }
