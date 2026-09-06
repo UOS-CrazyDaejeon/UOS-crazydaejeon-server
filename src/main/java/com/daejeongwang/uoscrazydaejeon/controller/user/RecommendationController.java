@@ -1,5 +1,6 @@
 package com.daejeongwang.uoscrazydaejeon.controller.user;
 
+import com.daejeongwang.uoscrazydaejeon.dto.request.NaturalSearchQueryRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.response.AiNextPlacesRecommendationResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.AiSimilarRecommendationResponse;
 import com.daejeongwang.uoscrazydaejeon.exception.AuthenticationFailedException;
@@ -48,6 +49,26 @@ public class RecommendationController {
 
         Long memberId = Long.valueOf(authentication.getName());
         AiNextPlacesRecommendationResponse response = recommendationService.recommendNextPlaces(memberId, placeId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/natural-search")
+    @Operation(summary = "자연어 기반 장소 추천", description = "선택한 장소의 1km 이내 장소 정보와 검색어를 AI 서버에 전달하여 장소를 추천받습니다.")
+    public ResponseEntity<Object> recommendNaturalSearch(
+            Authentication authentication,
+            @RequestParam Long placeId,
+            @RequestBody NaturalSearchQueryRequest request
+    ) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            throw new AuthenticationFailedException("로그인이 필요한 요청입니다.");
+        }
+
+        Object response = recommendationService.recommendNaturalSearch(
+                placeId,
+                request.query(),
+                request.topK()
+        );
 
         return ResponseEntity.ok(response);
     }
