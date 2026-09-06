@@ -10,4 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface PlaceClickLogRepository extends JpaRepository<PlaceClickLog, Long> {
     long countByPlace_Id(Long placeId);
+
+    void deleteAllByMember_Id(Long memberId);
 }

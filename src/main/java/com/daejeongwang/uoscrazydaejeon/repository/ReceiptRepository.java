@@ -30,4 +30,6 @@ public interface ReceiptRepository extends JpaRepository<Receipt, Long> {
     Optional<Receipt> findByVisitedPlace_IdAndVisitedPlace_Member_Id(Long visitedPlaceId, Long memberId);
 
     List<Receipt> findAllByVisitedPlace_Member_IdOrderByCreatedAtDesc(Long memberId);
+
+    void deleteAllByVisitedPlace_Member_Id(Long memberId);
 }

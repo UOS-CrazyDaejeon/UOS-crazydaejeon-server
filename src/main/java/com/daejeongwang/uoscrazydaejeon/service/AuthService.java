@@ -8,9 +8,11 @@ import com.daejeongwang.uoscrazydaejeon.dto.response.KakaoResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.LoginResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.SignUpResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.TokenResponse;
+import com.daejeongwang.uoscrazydaejeon.entity.AppleRefreshToken;
 import com.daejeongwang.uoscrazydaejeon.entity.Member;
 import com.daejeongwang.uoscrazydaejeon.entity.Refresh;
 import com.daejeongwang.uoscrazydaejeon.exception.AuthenticationFailedException;
+import com.daejeongwang.uoscrazydaejeon.repository.AppleRefreshTokenRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.MemberRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.RefreshTokenRepository;
 import com.daejeongwang.uoscrazydaejeon.security.JwtProvider;
@@ -33,6 +35,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final KakaoUtil kakaoUtil;
     private final AppleUtil appleUtil;
+    private final AppleRefreshTokenRepository appleRefreshTokenRepository;
 
     // 관리자 회원 가입
     @Transactional
@@ -177,7 +180,10 @@ public class AuthService {
         AppleResponse.OAuthToken appleOAuthToken = appleUtil.requestAppleToken(appleAuthorizationCode);
         AppleResponse.AppleProfile appleProfile = appleUtil.parseAppleProfile(appleOAuthToken.getId_token());
 
-        return loginWithAppleProfile(appleProfile);
+        LoginResponse response = loginWithAppleProfile(appleProfile);
+        saveAppleRefreshToken(response.getId(), appleOAuthToken.getRefresh_token());
+
+        return response;
     }
 
     @Transactional
@@ -187,8 +193,14 @@ public class AuthService {
         }
 
         AppleResponse.AppleProfile appleProfile = appleUtil.parseAppleProfile(request.identityToken());
+        LoginResponse response = loginWithAppleProfile(appleProfile);
 
-        return loginWithAppleProfile(appleProfile);
+        if (request.authorizationCode() != null && !request.authorizationCode().isBlank()) {
+            AppleResponse.OAuthToken appleOAuthToken = appleUtil.requestAppleToken(request.authorizationCode());
+            saveAppleRefreshToken(response.getId(), appleOAuthToken.getRefresh_token());
+        }
+
+        return response;
     }
 
     private LoginResponse loginWithAppleProfile(AppleResponse.AppleProfile appleProfile) {
@@ -210,6 +222,27 @@ public class AuthService {
                 });
 
         return issueLoginToken(member);
+    }
+
+    private void saveAppleRefreshToken(Long memberId, String appleRefreshToken) {
+        if (appleRefreshToken == null || appleRefreshToken.isBlank()) {
+            return;
+        }
+
+        AppleRefreshToken savedToken = appleRefreshTokenRepository.findByUserId(memberId)
+                .orElse(null);
+
+        if (savedToken == null) {
+            appleRefreshTokenRepository.save(
+                    AppleRefreshToken.builder()
+                            .userId(memberId)
+                            .token(appleRefreshToken)
+                            .updatedAt(LocalDateTime.now())
+                            .build()
+            );
+        } else {
+            savedToken.updateToken(appleRefreshToken);
+        }
     }
 
 }

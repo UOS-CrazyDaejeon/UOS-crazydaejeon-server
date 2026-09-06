@@ -14,4 +14,6 @@ public interface PlacePhotoRepository extends JpaRepository<PlacePhoto, Long> {
 
     @EntityGraph(attributePaths = "place")
     List<PlacePhoto> findAllByMember_IdOrderByCreatedAtDesc(Long memberId);
+
+    void deleteAllByMember_Id(Long memberId);
 }

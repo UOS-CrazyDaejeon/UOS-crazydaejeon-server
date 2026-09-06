@@ -59,15 +59,20 @@ public class AppleUtil {
         validateAppleProperties();
 
         try {
+            var formData = BodyInserters.fromFormData("grant_type", "authorization_code")
+                    .with("client_id", appleClientId)
+                    .with("client_secret", createAppleClientSecret())
+                    .with("code", appleAuthorizationCode);
+
+            if (StringUtils.hasText(appleRedirectUrl)) {
+                formData.with("redirect_uri", appleRedirectUrl);
+            }
+
             String responseBody = WebClient.create(APPLE_AUTH_URL)
                     .post()
                     .uri("/auth/token")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(BodyInserters.fromFormData("grant_type", "authorization_code")
-                            .with("client_id", appleClientId)
-                            .with("client_secret", createAppleClientSecret())
-                            .with("code", appleAuthorizationCode)
-                            .with("redirect_uri", appleRedirectUrl))
+                    .body(formData)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
@@ -81,6 +86,34 @@ public class AppleUtil {
             );
         } catch (JsonProcessingException e) {
             throw new AppleApiException(HttpStatus.BAD_GATEWAY, "애플 토큰 응답 파싱 실패");
+        }
+    }
+
+    public void revokeAppleToken(String appleRefreshToken) {
+        validateAppleProperties();
+
+        if (!StringUtils.hasText(appleRefreshToken)) {
+            return;
+        }
+
+        try {
+            WebClient.create(APPLE_AUTH_URL)
+                    .post()
+                    .uri("/auth/revoke")
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData("client_id", appleClientId)
+                            .with("client_secret", createAppleClientSecret())
+                            .with("token", appleRefreshToken)
+                            .with("token_type_hint", "refresh_token"))
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
+
+        } catch (WebClientResponseException e) {
+            throw new AppleApiException(
+                    HttpStatus.valueOf(e.getStatusCode().value()),
+                    "애플 토큰 폐기 실패: " + e.getResponseBodyAsString()
+            );
         }
     }
 
@@ -208,8 +241,7 @@ public class AppleUtil {
     private void validateAppleProperties() {
         if (!StringUtils.hasText(appleClientId)
                 || !StringUtils.hasText(appleTeamId)
-                || !StringUtils.hasText(appleKeyId)
-                || !StringUtils.hasText(appleRedirectUrl)) {
+                || !StringUtils.hasText(appleKeyId)) {
             throw new AppleApiException(HttpStatus.INTERNAL_SERVER_ERROR, "애플 로그인 설정이 필요합니다.");
         }
     }

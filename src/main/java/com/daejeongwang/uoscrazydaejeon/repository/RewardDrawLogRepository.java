@@ -11,4 +11,6 @@ public interface RewardDrawLogRepository extends JpaRepository<RewardDrawLog, Lo
     boolean existsByReceipt(Receipt receipt);
 
     List<RewardDrawLog> findAllByMember_IdOrderByCreatedAtDesc(Long memberId);
+
+    void deleteAllByMember_Id(Long memberId);
 }

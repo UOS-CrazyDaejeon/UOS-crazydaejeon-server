@@ -32,4 +32,6 @@ public interface VisitedPlaceRepository extends JpaRepository<VisitedPlace,Long>
             @Param("visitedPlaceId") Long visitedPlaceId,
             @Param("memberId") Long memberId
     );
+
+    void deleteAllByMember_Id(Long memberId);
 }

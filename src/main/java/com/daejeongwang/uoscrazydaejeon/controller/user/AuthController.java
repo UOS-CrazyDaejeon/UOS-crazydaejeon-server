@@ -87,27 +87,27 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "애플 로그인 페이지 이동", description = "Apple OAuth 인증 페이지로 리다이렉트합니다.")
-    @GetMapping("/apple")
-    public ResponseEntity<Void> redirectToApple() {
-        String encodedRedirectUri = URLEncoder.encode(appleRedirectUrl, StandardCharsets.UTF_8);
-
-        String appleAuthUrl = "https://appleid.apple.com/auth/authorize" + "?response_type=code"
-                + "&client_id=" + appleClientId
-                + "&redirect_uri=" + encodedRedirectUri;
-
-        return ResponseEntity.status(302)
-                .header("Location", appleAuthUrl)
-                .build();
-    }
-
-    @Operation(summary = "애플 로그인", description = "Apple 인가 코드로 로그인하고 JWT 토큰을 발급받습니다.")
-    @GetMapping("/login/apple")
-    public ResponseEntity<LoginResponse> appleLogin(@RequestParam("code") String appleAuthorizationCode) {
-        LoginResponse response = authService.appleLogin(appleAuthorizationCode);
-
-        return ResponseEntity.ok(response);
-    }
+//    @Operation(summary = "애플 로그인 페이지 이동", description = "Apple OAuth 인증 페이지로 리다이렉트합니다.")
+//    @GetMapping("/apple")
+//    public ResponseEntity<Void> redirectToApple() {
+//        String encodedRedirectUri = URLEncoder.encode(appleRedirectUrl, StandardCharsets.UTF_8);
+//
+//        String appleAuthUrl = "https://appleid.apple.com/auth/authorize" + "?response_type=code"
+//                + "&client_id=" + appleClientId
+//                + "&redirect_uri=" + encodedRedirectUri;
+//
+//        return ResponseEntity.status(302)
+//                .header("Location", appleAuthUrl)
+//                .build();
+//    }
+//
+//    @Operation(summary = "애플 로그인", description = "Apple 인가 코드로 로그인하고 JWT 토큰을 발급받습니다.")
+//    @GetMapping("/login/apple")
+//    public ResponseEntity<LoginResponse> appleLogin(@RequestParam("code") String appleAuthorizationCode) {
+//        LoginResponse response = authService.appleLogin(appleAuthorizationCode);
+//
+//        return ResponseEntity.ok(response);
+//    }
 
     @Operation(summary = "애플 네이티브 로그인", description = "iOS에서 받은 Apple identityToken을 검증하고 JWT 토큰을 발급받습니다.")
     @PostMapping("/apple")
