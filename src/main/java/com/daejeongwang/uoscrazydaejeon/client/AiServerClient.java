@@ -1,6 +1,7 @@
 package com.daejeongwang.uoscrazydaejeon.client;
 
 import com.daejeongwang.uoscrazydaejeon.dto.request.ReceiptOcrRequest;
+import com.daejeongwang.uoscrazydaejeon.dto.request.NaturalSearchRecommendationRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.NextPlacesRecommendationRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.SimilarRecommendationRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.response.AiNextPlacesRecommendationResponse;
@@ -89,6 +90,23 @@ public class AiServerClient {
             );
         } catch (RestClientResponseException e) {
             logAiError("next places recommendation", request, e);
+            throw e;
+        }
+    }
+
+    public Object requestNaturalSearchRecommendations(NaturalSearchRecommendationRequest request) {
+        String url = aiServerUrl + "/api/v1/recommendations/natural-search";
+
+        logAiRequest(url, request);
+
+        try {
+            return restTemplate.postForObject(
+                    url,
+                    createJsonEntity(request),
+                    Object.class
+            );
+        } catch (RestClientResponseException e) {
+            logAiError("natural search recommendation", request, e);
             throw e;
         }
     }

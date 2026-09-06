@@ -2,6 +2,8 @@ package com.daejeongwang.uoscrazydaejeon.service;
 
 import com.daejeongwang.uoscrazydaejeon.client.AiServerClient;
 import com.daejeongwang.uoscrazydaejeon.dto.RecommendationSession;
+import com.daejeongwang.uoscrazydaejeon.dto.request.NaturalSearchPlaceRequest;
+import com.daejeongwang.uoscrazydaejeon.dto.request.NaturalSearchRecommendationRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.NextPlacesRecommendationRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.RecommendationPlaceRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.request.SimilarRecommendationRequest;
@@ -77,6 +79,29 @@ public class RecommendationService {
         return response;
     }
 
+    public Object recommendNaturalSearch(Long placeId, String query, Integer topK) {
+        if (query == null || query.isBlank()) {
+            throw new IllegalArgumentException("검색어가 필요합니다.");
+        }
+
+        if (topK == null || topK <= 0) {
+            throw new IllegalArgumentException("top_k는 1 이상이어야 합니다.");
+        }
+
+        NaturalSearchRecommendationRequest request = createNaturalSearchRecommendationRequest(
+                placeId,
+                query,
+                topK
+        );
+
+        Object response = aiServerClient.requestNaturalSearchRecommendations(request);
+        if (response == null) {
+            throw new IllegalStateException("AI 추천 응답이 올바르지 않습니다.");
+        }
+
+        return response;
+    }
+
     private SimilarRecommendationRequest createSimilarRecommendationRequest(Long placeId) {
         Place selectedPlace = findPlace(placeId);
         List<RecommendationPlaceRequest> nearbyPlaces = findNearbyPlaces(selectedPlace)
@@ -109,6 +134,35 @@ public class RecommendationService {
                 nearbyPlaces,
                 visitedPlaces
         );
+    }
+
+    private NaturalSearchRecommendationRequest createNaturalSearchRecommendationRequest(
+            Long placeId,
+            String query,
+            Integer topK
+    ) {
+        Place selectedPlace = findPlace(placeId);
+        List<NaturalSearchPlaceRequest> nearbyPlaces = findNearbyPlaces(selectedPlace)
+                .stream()
+                .map(this::toNaturalSearchPlaceRequest)
+                .toList();
+
+        return new NaturalSearchRecommendationRequest(
+                nearbyPlaces,
+                query,
+                topK
+        );
+    }
+
+    private NaturalSearchPlaceRequest toNaturalSearchPlaceRequest(Place place) {
+        Double congestionRate = congestionRepository.findFirstByPlace_IdOrderByDateDesc(place.getId())
+                .map(congestion -> congestion.getCongestionRate())
+                .orElse(null);
+        Long visitorCount = visitorCountRepository.findFirstByPlace_IdOrderByDateDesc(place.getId())
+                .map(visitor -> visitor.getVisitorCount())
+                .orElse(null);
+
+        return NaturalSearchPlaceRequest.from(place, congestionRate, visitorCount);
     }
 
     private Place findPlace(Long placeId) {
