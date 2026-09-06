@@ -9,6 +9,7 @@ import com.daejeongwang.uoscrazydaejeon.dto.response.api.ShoppingItemResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.api.TourspotItemResponse;
 import com.daejeongwang.uoscrazydaejeon.entity.Place;
 import com.daejeongwang.uoscrazydaejeon.exception.ResourceNotFoundException;
+import com.daejeongwang.uoscrazydaejeon.repository.PlaceClickLogRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class PlaceService {
     private final RestaurantApiClient restaurantApiClient;
 
     private final PlaceRepository placeRepository;
+    private final PlaceClickLogRepository placeClickLogRepository;
 
     // Admin Place API Service
     @Transactional
@@ -160,7 +162,9 @@ public class PlaceService {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ResourceNotFoundException("장소를 찾을 수 없습니다."));
 
-        return PlaceResponse.from(place);
+        long viewerCount = placeClickLogRepository.countByPlace_Id(placeId);
+
+        return PlaceResponse.from(place, viewerCount);
     }
 
     // 특정 장소 근처의 장소 조회
