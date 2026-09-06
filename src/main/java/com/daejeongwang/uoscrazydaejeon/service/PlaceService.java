@@ -10,6 +10,7 @@ import com.daejeongwang.uoscrazydaejeon.dto.response.api.TourspotItemResponse;
 import com.daejeongwang.uoscrazydaejeon.entity.Place;
 import com.daejeongwang.uoscrazydaejeon.entity.VisitorCount;
 import com.daejeongwang.uoscrazydaejeon.exception.ResourceNotFoundException;
+import com.daejeongwang.uoscrazydaejeon.repository.PlaceClickLogRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.PlaceRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.VisitorCountRepository;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class PlaceService {
 
     private static final double TOP_VISITOR_RADIUS_METERS = 1_000.0;
     private static final int TOP_VISITOR_PLACE_COUNT = 5;
+    private final PlaceClickLogRepository placeClickLogRepository;
 
     // Admin Place API Service
     @Transactional
@@ -166,7 +168,9 @@ public class PlaceService {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ResourceNotFoundException("장소를 찾을 수 없습니다."));
 
-        return PlaceResponse.from(place);
+        long viewerCount = placeClickLogRepository.countByPlace_Id(placeId);
+
+        return PlaceResponse.from(place, viewerCount);
     }
 
     // 특정 장소 근처의 장소 조회
