@@ -19,6 +19,8 @@ import com.daejeongwang.uoscrazydaejeon.repository.ReceiptRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.VisitedPlaceRepository;
 import com.daejeongwang.uoscrazydaejeon.util.DistanceCalculator;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,8 +109,19 @@ public class ReceiptService {
     }
 
     // 내 영수증 조회
-    public List<ReceiptResponse> getMyReceipts(Long memberId) {
-        return receiptRepository.findAllByVisitedPlace_Member_IdOrderByCreatedAtDesc(memberId)
+    public List<ReceiptResponse> getMyReceipts(
+            Long memberId,
+            Receipt.ReceiptStatus verifyStatus,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return receiptRepository.findAllByVisitedPlace_Member_IdAndVerifyStatusOrderByCreatedAtDesc(
+                        memberId,
+                        verifyStatus,
+                        pageable
+                )
                 .stream()
                 .map(ReceiptResponse::from)
                 .toList();

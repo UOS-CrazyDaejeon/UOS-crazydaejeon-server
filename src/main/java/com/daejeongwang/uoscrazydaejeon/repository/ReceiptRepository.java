@@ -2,6 +2,8 @@ package com.daejeongwang.uoscrazydaejeon.repository;
 
 import com.daejeongwang.uoscrazydaejeon.entity.Receipt;
 import com.daejeongwang.uoscrazydaejeon.entity.VisitedPlace;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -29,7 +31,11 @@ public interface ReceiptRepository extends JpaRepository<Receipt, Long> {
 
     Optional<Receipt> findByVisitedPlace_IdAndVisitedPlace_Member_Id(Long visitedPlaceId, Long memberId);
 
-    List<Receipt> findAllByVisitedPlace_Member_IdOrderByCreatedAtDesc(Long memberId);
+    Page<Receipt> findAllByVisitedPlace_Member_IdAndVerifyStatusOrderByCreatedAtDesc(
+            Long memberId,
+            Receipt.ReceiptStatus verifyStatus,
+            Pageable pageable
+    );
 
     void deleteAllByVisitedPlace_Member_Id(Long memberId);
 }

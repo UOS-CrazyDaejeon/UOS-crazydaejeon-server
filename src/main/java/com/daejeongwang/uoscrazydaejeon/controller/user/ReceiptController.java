@@ -5,6 +5,7 @@ import com.daejeongwang.uoscrazydaejeon.dto.ResultDto;
 import com.daejeongwang.uoscrazydaejeon.dto.response.ReceiptResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.ReceiptStatusResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.ReceiptUploadUrlResponse;
+import com.daejeongwang.uoscrazydaejeon.entity.Receipt;
 import com.daejeongwang.uoscrazydaejeon.service.ReceiptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -88,10 +89,15 @@ public class ReceiptController {
 
     @GetMapping("/me")
     @Operation(summary = "내 영수증 조회", description = "현재 로그인 된 사용자가 등록한 영수증을 조회합니다.")
-    public ResponseEntity<List<ReceiptResponse>> getAllReceipt(Authentication authentication) {
+    public ResponseEntity<List<ReceiptResponse>> getAllReceipt(
+            Authentication authentication,
+            @RequestParam Receipt.ReceiptStatus verifyStatus,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         Long memberId = Long.valueOf(authentication.getName());
 
-        List<ReceiptResponse> response = receiptService.getMyReceipts(memberId);
+        List<ReceiptResponse> response = receiptService.getMyReceipts(memberId, verifyStatus, page, size);
 
         return ResponseEntity.ok(response);
     }
