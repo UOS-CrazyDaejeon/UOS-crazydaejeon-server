@@ -4,6 +4,7 @@ import com.daejeongwang.uoscrazydaejeon.config.SwaggerExamples;
 import com.daejeongwang.uoscrazydaejeon.dto.ResultDto;
 import com.daejeongwang.uoscrazydaejeon.dto.response.PlaceResponse;
 import com.daejeongwang.uoscrazydaejeon.repository.PlaceRepository;
+import com.daejeongwang.uoscrazydaejeon.service.PlaceClickLogService;
 import com.daejeongwang.uoscrazydaejeon.service.PlaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.List;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final PlaceClickLogService placeClickLogService;
 
     @GetMapping
     @Operation(summary = "전체 장소 조회", description = "대전의 모든 장소를 조회합니다.")
@@ -72,7 +75,13 @@ public class PlaceController {
                             examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
                     ))
     })
-    public ResponseEntity<PlaceResponse> getPlaceByPlaceId(@PathVariable Long placeId) {
+    public ResponseEntity<PlaceResponse> getPlaceByPlaceId(
+            Authentication authentication,
+            @PathVariable Long placeId
+    ) {
+        Long memberId = Long.valueOf(authentication.getName());
+        placeClickLogService.saveClickLog(memberId, placeId);
+
         PlaceResponse response = placeService.getPlaceById(placeId);
 
         return ResponseEntity.ok(response);
