@@ -20,6 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -168,7 +171,13 @@ public class PlaceService {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ResourceNotFoundException("장소를 찾을 수 없습니다."));
 
-        long viewerCount = placeClickLogRepository.countByPlace_Id(placeId);
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime startOfNextDay = today.plusDays(1).atStartOfDay();
+
+        long viewerCount = placeClickLogRepository.countByPlace_IdAndClickedAtGreaterThanEqualAndClickedAtLessThan(
+                placeId, startOfDay, startOfNextDay
+        );
 
         return PlaceResponse.from(place, viewerCount);
     }

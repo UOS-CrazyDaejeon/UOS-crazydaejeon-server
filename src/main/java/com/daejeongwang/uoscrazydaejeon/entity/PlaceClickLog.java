@@ -6,9 +6,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(
+        name = "uk_place_click_log_member_place_date",
+        columnNames = {"member_id", "place_id", "clicked_date"}
+))
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,8 +37,17 @@ public class PlaceClickLog {
     @Column(name = "clicked_at", nullable = false)
     private LocalDateTime clickedAt;
 
+    @Column(
+            name = "clicked_date",
+            insertable = false,
+            updatable = false,
+            columnDefinition = "date generated always as (date(clicked_at)) stored"
+    )
+    private LocalDate clickedDate;
+
     @PrePersist
     public void prePersist() {
-        this.clickedAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        this.clickedAt = now;
     }
 }

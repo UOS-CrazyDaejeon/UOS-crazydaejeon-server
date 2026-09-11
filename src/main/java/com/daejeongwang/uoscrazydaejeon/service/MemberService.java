@@ -92,7 +92,7 @@ public class MemberService {
         receiptRepository.deleteAllByVisitedPlace_Member_Id(memberId);
         visitedPlaceRepository.deleteAllByMember_Id(memberId);
         placePhotoRepository.deleteAllByMember_Id(memberId);
-        placeClickLogRepository.deleteAllByMember_Id(memberId);
+        placeClickLogRepository.detachMember(memberId);
         memberRepository.delete(member);
     }
 }

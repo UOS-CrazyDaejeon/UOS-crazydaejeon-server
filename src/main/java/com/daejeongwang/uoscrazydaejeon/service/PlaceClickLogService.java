@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Service
 @RequiredArgsConstructor
 public class PlaceClickLogService {
@@ -21,6 +25,20 @@ public class PlaceClickLogService {
 
     @Transactional
     public void saveClickLog(Long memberId, Long placeId) {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime startOfNextDay = today.plusDays(1).atStartOfDay();
+
+        if (placeClickLogRepository
+                .existsByMember_IdAndPlace_IdAndClickedAtGreaterThanEqualAndClickedAtLessThan(
+                        memberId,
+                        placeId,
+                        startOfDay,
+                        startOfNextDay
+                )) {
+            return;
+        }
+
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ResourceNotFoundException("장소를 찾을 수 없습니다."));
 
