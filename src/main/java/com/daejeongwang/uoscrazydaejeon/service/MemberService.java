@@ -1,5 +1,6 @@
 package com.daejeongwang.uoscrazydaejeon.service;
 
+import com.daejeongwang.uoscrazydaejeon.dto.request.MemberUpdateRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.response.MemberResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.PointResponse;
 import com.daejeongwang.uoscrazydaejeon.entity.AppleRefreshToken;
@@ -52,6 +53,28 @@ public class MemberService {
         return PointResponse.builder()
                 .memberName(member.getMemberName())
                 .nickname(member.getNickname())
+                .point(member.getPoint())
+                .build();
+    }
+
+    @Transactional
+    public MemberResponse updateMember(Long memberId, MemberUpdateRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
+
+        memberRepository.findByNickname(request.nickname())
+                .filter(existingMember -> !existingMember.getId().equals(memberId))
+                .ifPresent(existingMember -> {
+                    throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+                });
+
+        member.updateProfile(request.nickname(), request.phone());
+
+        return MemberResponse.builder()
+                .memberId(member.getId())
+                .memberName(member.getMemberName())
+                .nickname(member.getNickname())
+                .phone(member.getPhone())
                 .point(member.getPoint())
                 .build();
     }
