@@ -103,29 +103,6 @@ public class PlacePhotoController {
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
-    @GetMapping("/me")
-    @Operation(summary = "내 장소 사진 조회", description = "현재 로그인 된 사용자가 등록한 장소사진을 조회합니다."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "내 장소 사진 조회 성공"),
-            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
-                    content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
-                    )),
-            @ApiResponse(responseCode = "500", description = "서버 오류",
-                    content = @Content(
-                            schema = @Schema(implementation = ResultDto.class),
-                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
-                    ))
-    })
-    public ResponseEntity<List<PlacePhotoResponse>> getMyPlacePhotos(
-            Authentication authentication
-    ) {
-        Long memberId = Long.valueOf(authentication.getName());
-        List<PlacePhotoResponse> responses = placePhotoService.getMyPlacePhotos(memberId);
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
-    }
-
     @DeleteMapping("/{placePhotoId}")
     @Operation(summary = "장소 사진 삭제", description = "현재 로그인 된 사용자가 올린 장소 사진을 S3와 DB에서 삭제합니다.")
     @ApiResponses({
