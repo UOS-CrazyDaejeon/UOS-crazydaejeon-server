@@ -55,7 +55,6 @@ public class AuthService {
                 Member.Role.ADMIN,
                 encodedPassword,
                 request.getMembername(),
-                request.getNickname(),
                 request.getNickname()
         );
 
@@ -157,6 +156,7 @@ public class AuthService {
 
         String kakaoLoginId = "kakao_" + kakaoProfile.getId();
         String kakaoNickname = kakaoProfile.getKakao_account().getProfile().getNickname();
+        String defaultKakaoNickname = createDefaultNickname("kakao", String.valueOf(kakaoProfile.getId()));
 
         Member member = memberRepository.findByLoginId(kakaoLoginId)
                 .orElseGet(() -> {
@@ -164,7 +164,10 @@ public class AuthService {
                             .loginId(kakaoLoginId)
                             .password(passwordEncoder.encode("KAKAO_USER"))
                             .role(Member.Role.USER)
-                            .memberName(kakaoNickname)
+                            .memberName(defaultIfBlank(kakaoNickname, defaultKakaoNickname))
+                            .nickname(defaultKakaoNickname)
+                            .point(0)
+                            .createdAt(LocalDateTime.now())
                             .build();
 
                     return memberRepository.save(newMember);
@@ -206,6 +209,7 @@ public class AuthService {
     private LoginResponse loginWithAppleProfile(AppleResponse.AppleProfile appleProfile) {
         String appleLoginId = "apple_" + appleProfile.subject();
         String appleMemberName = appleProfile.email() == null ? "Apple User" : appleProfile.email();
+        String defaultAppleNickname = createDefaultNickname("apple", appleProfile.subject());
 
         Member member = memberRepository.findByLoginId(appleLoginId)
                 .orElseGet(() -> {
@@ -214,6 +218,7 @@ public class AuthService {
                             .password(passwordEncoder.encode("APPLE_USER"))
                             .role(Member.Role.USER)
                             .memberName(appleMemberName)
+                            .nickname(defaultAppleNickname)
                             .point(0)
                             .createdAt(LocalDateTime.now())
                             .build();
@@ -222,6 +227,19 @@ public class AuthService {
                 });
 
         return issueLoginToken(member);
+    }
+
+    private String createDefaultNickname(String provider, String providerId) {
+        String suffix = providerId == null ? String.valueOf(System.currentTimeMillis()) : providerId;
+        if (suffix.length() > 8) {
+            suffix = suffix.substring(suffix.length() - 8);
+        }
+
+        return provider + "_" + suffix;
+    }
+
+    private String defaultIfBlank(String value, String defaultValue) {
+        return value == null || value.isBlank() ? defaultValue : value;
     }
 
     private void saveAppleRefreshToken(Long memberId, String appleRefreshToken) {

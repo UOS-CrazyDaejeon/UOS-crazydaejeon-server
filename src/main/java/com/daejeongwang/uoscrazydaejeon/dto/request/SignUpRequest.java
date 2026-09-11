@@ -17,9 +17,6 @@ public class SignUpRequest {
     @NotEmpty(message = "닉네임은 필수 항목입니다.")
     private String nickname;
 
-    @NotEmpty(message = "전화번호는 필수 항목입니다.")
-    private String phone;
-
     @NotEmpty(message = "비밀번호는 필수 항목입니다.")
     private String password;
 

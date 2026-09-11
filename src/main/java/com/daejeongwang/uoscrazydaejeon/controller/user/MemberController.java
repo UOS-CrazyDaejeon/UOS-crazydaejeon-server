@@ -2,6 +2,7 @@ package com.daejeongwang.uoscrazydaejeon.controller.user;
 
 import com.daejeongwang.uoscrazydaejeon.config.SwaggerExamples;
 import com.daejeongwang.uoscrazydaejeon.dto.ResultDto;
+import com.daejeongwang.uoscrazydaejeon.dto.request.MemberUpdateRequest;
 import com.daejeongwang.uoscrazydaejeon.dto.response.MemberResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.PointResponse;
 import com.daejeongwang.uoscrazydaejeon.service.MemberService;
@@ -12,11 +13,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -70,6 +74,36 @@ public class MemberController {
         Long memberId = Long.valueOf(authentication.getName());
 
         PointResponse response = memberService.getMemberPoint(memberId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/me")
+    @Operation(summary = "내 정보 수정", description = "현재 로그인 된 사용자의 닉네임을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 또는 중복 닉네임",
+                    content = @Content(
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.BAD_REQUEST)
+                    )),
+            @ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = ResultDto.class)
+                    )),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
+                    ))
+    })
+    public ResponseEntity<MemberResponse> updateMember(
+            Authentication authentication,
+            @Valid @RequestBody MemberUpdateRequest request
+    ) {
+        Long memberId = Long.valueOf(authentication.getName());
+
+        MemberResponse response = memberService.updateMember(memberId, request);
 
         return ResponseEntity.ok(response);
     }
