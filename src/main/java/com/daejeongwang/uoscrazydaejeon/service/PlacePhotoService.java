@@ -14,6 +14,8 @@ import com.daejeongwang.uoscrazydaejeon.repository.PlacePhotoRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -87,17 +89,25 @@ public class PlacePhotoService {
         }
     }
 
-    public List<PlacePhotoByPlaceResponse> getPlacePhotosByPlace(Long placeId) {
+    public List<PlacePhotoByPlaceResponse> getPlacePhotosByPlace(
+            Long memberId,
+            Long placeId,
+            int page,
+            int size
+    ) {
         if (!placeRepository.existsById(placeId)) {
             throw new ResourceNotFoundException("장소가 없습니다.");
         }
 
-        return placePhotoRepository.findAllByPlace_IdOrderByCreatedAtDesc(placeId)
+        Pageable pageable = PageRequest.of(page, size);
+
+        return placePhotoRepository.findAllByPlace_IdOrderByCreatedAtDesc(placeId, pageable)
                 .stream()
                 .map(placePhoto -> PlacePhotoByPlaceResponse.builder()
                         .placePhotoId(placePhoto.getId())
                         .imageUrl(s3Service.createPublicUrl(placePhoto.getObjectKey()))
                         .createdAt(placePhoto.getCreatedAt())
+                        .me(placePhoto.getMember().getId().equals(memberId))
                         .build())
                 .toList();
     }

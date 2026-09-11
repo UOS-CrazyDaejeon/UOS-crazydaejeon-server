@@ -11,4 +11,5 @@ public class PlacePhotoByPlaceResponse {
     private Long placePhotoId;
     private String imageUrl;
     private LocalDateTime createdAt;
+    private boolean me;
 }

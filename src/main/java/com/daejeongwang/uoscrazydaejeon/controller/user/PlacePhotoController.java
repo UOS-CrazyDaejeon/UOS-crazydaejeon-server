@@ -87,9 +87,18 @@ public class PlacePhotoController {
                     ))
     })
     public ResponseEntity<List<PlacePhotoByPlaceResponse>> getPlacePhotosByPlaceId(
-            @PathVariable Long placeId
+            Authentication authentication,
+            @PathVariable Long placeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        List<PlacePhotoByPlaceResponse> responses = placePhotoService.getPlacePhotosByPlace(placeId);
+        Long memberId = Long.valueOf(authentication.getName());
+        List<PlacePhotoByPlaceResponse> responses = placePhotoService.getPlacePhotosByPlace(
+                memberId,
+                placeId,
+                page,
+                size
+        );
 
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
