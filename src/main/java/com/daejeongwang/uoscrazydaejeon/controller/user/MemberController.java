@@ -79,7 +79,7 @@ public class MemberController {
     }
 
     @PatchMapping("/me")
-    @Operation(summary = "내 정보 수정", description = "현재 로그인 된 사용자의 닉네임과 전화번호를 수정합니다.")
+    @Operation(summary = "내 정보 수정", description = "현재 로그인 된 사용자의 닉네임을 수정합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 또는 중복 닉네임",

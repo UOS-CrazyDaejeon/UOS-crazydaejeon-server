@@ -17,9 +17,6 @@ public class MemberResponse {
     @Schema(description = "닉네임", example = "대전왕")
     private String nickname;
 
-    @Schema(description = "전화번호", example = "010-1234-5678")
-    private String phone;
-
     @Schema(description = "보유 포인트", example = "1500")
     private Integer point;
 

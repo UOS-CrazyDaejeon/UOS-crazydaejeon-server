@@ -34,8 +34,6 @@ public class Member {
 
     private LocalDateTime createdAt;
 
-    private String phone;
-
     private Integer point;
 
     public void addPoint(Integer point) {
@@ -50,8 +48,7 @@ public class Member {
             Role role,
             String password,
             String memberName,
-            String nickname,
-            String phone
+            String nickname
     ) {
         return Member.builder()
                 .loginId(loginId)
@@ -59,14 +56,12 @@ public class Member {
                 .password(password)
                 .memberName(memberName)
                 .nickname(nickname)
-                .phone(phone)
                 .point(0)
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public void updateProfile(String nickname, String phone) {
+    public void updateProfile(String nickname) {
         this.nickname = nickname;
-        this.phone = phone;
     }
 }

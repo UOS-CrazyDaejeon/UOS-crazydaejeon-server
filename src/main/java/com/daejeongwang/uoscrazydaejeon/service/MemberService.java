@@ -41,7 +41,6 @@ public class MemberService {
                 .memberId(member.getId())
                 .memberName(member.getMemberName())
                 .nickname(member.getNickname())
-                .phone(member.getPhone())
                 .point(member.getPoint())
                 .build();
     }
@@ -68,13 +67,12 @@ public class MemberService {
                     throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
                 });
 
-        member.updateProfile(request.nickname(), request.phone());
+        member.updateProfile(request.nickname());
 
         return MemberResponse.builder()
                 .memberId(member.getId())
                 .memberName(member.getMemberName())
                 .nickname(member.getNickname())
-                .phone(member.getPhone())
                 .point(member.getPoint())
                 .build();
     }
