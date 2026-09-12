@@ -19,14 +19,47 @@ public class PlaceSearchService {
     private final PlaceRepository placeRepository;
 
     public void syncPlaces() {
-        List<PlaceSearchResponse> response = searchPlaces("대전 중구");
+        List<String> keywords = List.of(
+                "대전 동구 관광지",
+                "대전 중구 관광지",
+                "대전 서구 관광지",
+                "대전 유성구 관광지",
+                "대전 대덕구 관광지",
+                "대전 동구 맛집",
+                "대전 중구 맛집",
+                "대전 서구 맛집",
+                "대전 유성구 맛집",
+                "대전 대덕구 맛집",
+                "대전 동구 카페",
+                "대전 중구 카페",
+                "대전 서구 카페",
+                "대전 유성구 카페",
+                "대전 대덕구 카페",
+                "대전 동구 전시",
+                "대전 중구 전시",
+                "대전 서구 전시",
+                "대전 유성구 전시",
+                "대전 대덕구 전시",
+                "대전 동구 공원",
+                "대전 중구 공원",
+                "대전 서구 공원",
+                "대전 유성구 공원",
+                "대전 대덕구 공원",
+                "대전 동구 쇼핑",
+                "대전 중구 쇼핑",
+                "대전 서구 쇼핑",
+                "대전 유성구 쇼핑",
+                "대전 대덕구 쇼핑"
+        );
 
-        for (PlaceSearchResponse placeSearchResponse : response) {
-            Place place = convertToEntity(placeSearchResponse);
+        keywords.forEach(keyword -> searchPlaces(keyword).forEach(this::saveIfNotExists));
+    }
 
-            if(!placeRepository.existsByPlaceNameAndPlaceAddressAndCategoryLarge(place.getPlaceName(), place.getPlaceAddress(), place.getCategoryLarge()))
-                placeRepository.save(place);
-        }
+    private void saveIfNotExists(PlaceSearchResponse placeSearchResponse) {
+        Place place = convertToEntity(placeSearchResponse);
+
+        if(!placeRepository.existsByPlaceNameAndPlaceAddressAndCategoryLarge(place.getPlaceName(), place.getPlaceAddress(), place.getCategoryLarge()))
+            placeRepository.save(place);
     }
 
     private Place convertToEntity(PlaceSearchResponse placeSearchResponse) {
