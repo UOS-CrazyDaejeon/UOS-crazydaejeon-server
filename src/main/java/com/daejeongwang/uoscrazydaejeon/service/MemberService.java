@@ -32,6 +32,7 @@ public class MemberService {
     private final PlaceClickLogRepository placeClickLogRepository;
     private final AppleRefreshTokenRepository appleRefreshTokenRepository;
     private final AppleUtil appleUtil;
+    private final S3Service s3Service;
 
     public MemberResponse findMemberById(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -85,6 +86,9 @@ public class MemberService {
         appleRefreshTokenRepository.findByUserId(memberId)
                 .map(AppleRefreshToken::getToken)
                 .ifPresent(appleUtil::revokeAppleToken);
+
+        placePhotoRepository.findObjectKeysByMemberId(memberId).forEach(s3Service::deleteObject);
+        receiptRepository.findObjectKeysByMemberId(memberId).forEach(s3Service::deleteObject);
 
         appleRefreshTokenRepository.deleteByUserId(memberId);
         refreshTokenRepository.deleteByUserId(memberId);

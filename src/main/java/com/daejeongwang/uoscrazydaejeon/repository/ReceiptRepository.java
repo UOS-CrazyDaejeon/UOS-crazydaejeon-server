@@ -5,12 +5,17 @@ import com.daejeongwang.uoscrazydaejeon.entity.VisitedPlace;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ReceiptRepository extends JpaRepository<Receipt, Long> {
+    @Query("select receipt.objectKey from Receipt receipt where receipt.visitedPlace.member.id = :memberId")
+    List<String> findObjectKeysByMemberId(@Param("memberId") Long memberId);
+
     Optional<Receipt> findByReceiptUuid(UUID receiptUuid);
     Optional<Receipt> findByIdAndVisitedPlace_Member_Id(Long receiptId, Long memberId);
     boolean existsByVisitedPlaceAndVerifyStatus(
