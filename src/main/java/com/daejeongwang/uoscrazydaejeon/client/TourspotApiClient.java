@@ -24,7 +24,7 @@ public class TourspotApiClient {
         String url = UriComponentsBuilder.fromUriString(tourspotApiUrl)
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("pageNo", "1")
-                .queryParam("numOfRows", "150")
+                .queryParam("numOfRows", "1000")
                 .toUriString();
 
         TourspotApiResponse response = restTemplate.getForObject(url, TourspotApiResponse.class);

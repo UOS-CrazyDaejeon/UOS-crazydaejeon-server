@@ -24,7 +24,7 @@ public class RestaurantApiClient {
         String url = UriComponentsBuilder.fromUriString(restaurantApiUrl)
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("page", 1)
-                .queryParam("perPage", 100)
+                .queryParam("perPage", 1000)
                 .toUriString();
 
         RestaurantApiResponse response = restTemplate.getForObject(url, RestaurantApiResponse.class);

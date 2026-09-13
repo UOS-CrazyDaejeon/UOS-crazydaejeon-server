@@ -24,7 +24,7 @@ public class ShoppingApiClient {
         String url = UriComponentsBuilder.fromUriString(shoppingApiUrl)
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("pageNo", "1")
-                .queryParam("numOfRows", "100")
+                .queryParam("numOfRows", "1000")
                 .toUriString();
 
         ShoppingApiResponse response = restTemplate.getForObject(url, ShoppingApiResponse.class);
