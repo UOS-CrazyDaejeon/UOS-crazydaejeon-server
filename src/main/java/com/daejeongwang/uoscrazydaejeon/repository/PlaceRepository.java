@@ -17,6 +17,10 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findByPlaceName(String placeName);
 
+    Optional<Place> findFirstByPlaceName(String placeName);
+
+    Optional<Place> findFirstByPlaceNameAndGu(String placeName, String gu);
+
     @Query(value = """
         SELECT *
         FROM place p

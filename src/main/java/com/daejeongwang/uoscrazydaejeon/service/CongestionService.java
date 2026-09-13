@@ -47,7 +47,9 @@ public class CongestionService {
     }
 
     public Congestion convertCongestionToEntity(CongestionItemResponse dto) {
-        Place place = placeRepository.findByPlaceName(dto.getTAtsNm()).orElse(null);
+        Place place = placeRepository
+                .findFirstByPlaceNameAndGu(dto.getTAtsNm(), dto.getSignguNm())
+                .orElseGet(() -> placeRepository.findFirstByPlaceName(dto.getTAtsNm()).orElse(null));
 
         if(place == null)
             return null;
