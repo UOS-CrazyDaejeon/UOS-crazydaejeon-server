@@ -15,7 +15,6 @@
 - 대전 장소 목록 조회
 - 장소 상세 조회
 - DB 기반 장소 검색
-- 카카오 키워드 API 기반 장소 수집
 - 특정 장소 기준 1km 반경 주변 장소 조회
 - 현재 위치 기준 방문자 수 상위 장소 조회
 - 장소 클릭 로그 및 일별 조회 수 집계
@@ -236,7 +235,6 @@ docker run -p 8080:8080 \
 | Endpoint | Description |
 | --- | --- |
 | `POST /api/v1/admin/sync/places` | 관광지, 쇼핑, 음식점 전체 동기화 |
-| `POST /api/v1/admin/sync/searched-places` | 카카오 키워드 기반 장소 수집 |
 | `POST /api/v1/admin/sync/congestion` | 공공 데이터 기반 혼잡도 동기화 |
 | `POST /api/v1/admin/sync/congestion/forecast` | LLM 기반 혼잡도 생성 작업 시작 |
 | `POST /api/v1/admin/sync/visitor-count` | LLM 기반 방문자 수 생성 |
