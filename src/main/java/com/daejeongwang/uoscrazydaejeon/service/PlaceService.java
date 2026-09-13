@@ -4,6 +4,9 @@ import com.daejeongwang.uoscrazydaejeon.client.RestaurantApiClient;
 import com.daejeongwang.uoscrazydaejeon.client.ShoppingApiClient;
 import com.daejeongwang.uoscrazydaejeon.client.TourspotApiClient;
 import com.daejeongwang.uoscrazydaejeon.dto.response.PlaceResponse;
+import com.daejeongwang.uoscrazydaejeon.dto.response.PlaceDetailResponse;
+import com.daejeongwang.uoscrazydaejeon.repository.VisitedPlaceRepository;
+import java.time.Clock;
 import com.daejeongwang.uoscrazydaejeon.dto.response.api.RestaurantItemResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.api.ShoppingItemResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.api.TourspotItemResponse;
@@ -39,6 +42,8 @@ public class PlaceService {
     private static final double TOP_VISITOR_RADIUS_METERS = 1_000.0;
     private static final int TOP_VISITOR_PLACE_COUNT = 5;
     private final PlaceClickLogRepository placeClickLogRepository;
+    private final VisitedPlaceRepository visitedPlaceRepository;
+    private final Clock clock;
 
     // Admin Place API Service
     @Transactional
@@ -178,11 +183,11 @@ public class PlaceService {
     }
 
     // 특정 장소 조회
-    public PlaceResponse getPlaceById(Long placeId) {
+    public PlaceDetailResponse getPlaceById(Long memberId, Long placeId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ResourceNotFoundException("장소를 찾을 수 없습니다."));
 
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate today = LocalDate.now(clock.withZone(ZoneId.of("Asia/Seoul")));
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime startOfNextDay = today.plusDays(1).atStartOfDay();
 
@@ -190,7 +195,10 @@ public class PlaceService {
                 placeId, startOfDay, startOfNextDay
         );
 
-        return PlaceResponse.from(place, viewerCount);
+        boolean visitedToday = visitedPlaceRepository.existsByMember_IdAndPlace_IdAndVisitedDate(
+                memberId, placeId, today
+        );
+        return PlaceDetailResponse.from(place, viewerCount, visitedToday);
     }
 
     // 특정 장소 근처의 장소 조회

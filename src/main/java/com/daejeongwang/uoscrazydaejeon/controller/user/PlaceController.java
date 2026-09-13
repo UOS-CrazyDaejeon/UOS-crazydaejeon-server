@@ -3,6 +3,7 @@ package com.daejeongwang.uoscrazydaejeon.controller.user;
 import com.daejeongwang.uoscrazydaejeon.config.SwaggerExamples;
 import com.daejeongwang.uoscrazydaejeon.dto.ResultDto;
 import com.daejeongwang.uoscrazydaejeon.dto.response.PlaceResponse;
+import com.daejeongwang.uoscrazydaejeon.dto.response.PlaceDetailResponse;
 import com.daejeongwang.uoscrazydaejeon.service.PlaceClickLogService;
 import com.daejeongwang.uoscrazydaejeon.service.PlaceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,14 +99,14 @@ public class PlaceController {
                             examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
                     ))
     })
-    public ResponseEntity<PlaceResponse> getPlaceByPlaceId(
+    public ResponseEntity<PlaceDetailResponse> getPlaceByPlaceId(
             Authentication authentication,
             @PathVariable Long placeId
     ) {
         Long memberId = Long.valueOf(authentication.getName());
         placeClickLogService.saveClickLog(memberId, placeId);
 
-        PlaceResponse response = placeService.getPlaceById(placeId);
+        PlaceDetailResponse response = placeService.getPlaceById(memberId, placeId);
 
         return ResponseEntity.ok(response);
     }

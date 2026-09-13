@@ -11,10 +11,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public interface VisitedPlaceRepository extends JpaRepository<VisitedPlace,Long> {
+    boolean existsByMember_IdAndPlace_IdAndVisitedDate(Long memberId, Long placeId, LocalDate visitedDate);
     boolean existsByMemberAndPlaceAndVisitedAtGreaterThanEqualAndVisitedAtLessThan(Member member, Place place, Instant start, Instant end);
     Optional<VisitedPlace> findByIdAndMember_Id(Long visitedPlaceId, Long memberId);
 
