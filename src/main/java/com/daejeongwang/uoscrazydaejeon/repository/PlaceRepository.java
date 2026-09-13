@@ -21,6 +21,22 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findFirstByPlaceNameAndGu(String placeName, String gu);
 
+    @Query("""
+        SELECT p
+        FROM Place p
+        WHERE LOWER(COALESCE(p.placeName, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.placeDescription, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.placeAddress, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.gu, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.dong, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.categoryLarge, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.categoryMedium, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.categorySmall, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(COALESCE(p.tag, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        ORDER BY p.placeName ASC
+        """)
+    Page<Place> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
     @Query(value = """
         SELECT *
         FROM place p

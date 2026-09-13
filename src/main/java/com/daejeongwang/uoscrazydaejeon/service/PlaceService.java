@@ -165,6 +165,17 @@ public class PlaceService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<PlaceResponse> searchPlacesInDatabase(String keyword, int page, int size) {
+        if(keyword == null || keyword.isBlank()) {
+            throw new IllegalArgumentException("검색어를 입력해야 합니다.");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return placeRepository.searchByKeyword(keyword.trim(), pageable)
+                .map(PlaceResponse::from);
+    }
 
     // 특정 장소 조회
     public PlaceResponse getPlaceById(Long placeId) {
