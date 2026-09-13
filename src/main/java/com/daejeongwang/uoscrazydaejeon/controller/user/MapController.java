@@ -31,7 +31,7 @@ public class MapController {
     @GetMapping("/search")
     @Operation(summary = "장소 검색", description = "실시간 호출하여 장소 검색 결과를 반환")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "장소 검색 성공"),
+            @ApiResponse(responseCode = "200", description = "장소 검색 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 검색어",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),

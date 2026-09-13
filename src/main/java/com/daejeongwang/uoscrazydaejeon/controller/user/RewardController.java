@@ -37,7 +37,7 @@ public class RewardController {
     @GetMapping
     @Operation(summary = "상품 목록 조회", description = "등록되어있는 상품 전체 목록을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "상품 목록 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "상품 목록 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -56,7 +56,7 @@ public class RewardController {
     @GetMapping("/draw")
     @Operation(summary = "승인된 영수증에 대한 상품 뽑기", description = "승인된 영수증에 대해 랜덤한 상품을 뽑습니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "상품 뽑기 성공"),
+            @ApiResponse(responseCode = "200", description = "상품 뽑기 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 상품 뽑기 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -64,13 +64,21 @@ public class RewardController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
                             examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
-                    ))
+                    )),
+            @ApiResponse(responseCode = "404", description = "데이터를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND))),
+            @ApiResponse(responseCode = "409", description = "요청 상태 충돌",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.CONFLICT)))
     })
     public ResponseEntity<RewardDrawResponse> drawReward(Authentication authentication, @RequestParam Long visitedPlaceId) {
         Long memberId = Long.valueOf(authentication.getName());
@@ -83,10 +91,12 @@ public class RewardController {
     @GetMapping("/me/draw-logs")
     @Operation(summary = "뽑기 기록 조회", description = "나의 뽑기 기록을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "뽑기 기록 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "뽑기 기록 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(

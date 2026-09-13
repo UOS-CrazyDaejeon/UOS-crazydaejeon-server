@@ -28,7 +28,7 @@ public class VisitVerificationController {
     @PostMapping("/{placeId}/visit-verifications")
     @Operation(summary = "방문 인증", description = "현재 로그인 된 사용자의 장소 방문을 인증합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "방문 인증 성공"),
+            @ApiResponse(responseCode = "200", description = "방문 인증 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 방문 인증 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -36,13 +36,21 @@ public class VisitVerificationController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
                             examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
-                    ))
+                    )),
+            @ApiResponse(responseCode = "404", description = "데이터를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND))),
+            @ApiResponse(responseCode = "409", description = "요청 상태 충돌",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.CONFLICT)))
     })
     public ResponseEntity<VisitVerificationResponse> verifyVisit(
             Authentication authentication,

@@ -1,5 +1,10 @@
 package com.daejeongwang.uoscrazydaejeon.controller.user;
 
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import com.daejeongwang.uoscrazydaejeon.config.SwaggerExamples;
 import com.daejeongwang.uoscrazydaejeon.dto.ResultDto;
 import com.daejeongwang.uoscrazydaejeon.dto.response.VisitorCountResponse;
@@ -24,10 +29,12 @@ public class VisitorCountController {
     @GetMapping("/{placeId}")
     @Operation(summary = "장소별 방문자 수 조회", description = "해당 장소의 방문자 수를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "방문자 수 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "방문자 수 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "404", description = "장소를 찾을 수 없음",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class))),
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),

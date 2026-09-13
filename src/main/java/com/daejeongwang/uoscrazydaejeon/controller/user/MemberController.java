@@ -35,7 +35,7 @@ public class MemberController {
     @GetMapping("/me")
     @Operation(summary = "내 정보 조회", description = "현재 로그인 된 사용자의 정보를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 회원 ID",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -58,7 +58,7 @@ public class MemberController {
      @GetMapping("/me/points")
     @Operation(summary = "내 포인트 조회", description = "현재 로그인 된 사용자의 포인트를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "회원 포인트 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "회원 포인트 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 회원 ID",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -81,7 +81,7 @@ public class MemberController {
     @PatchMapping("/me")
     @Operation(summary = "내 정보 수정", description = "현재 로그인 된 사용자의 닉네임을 수정합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
+            @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 또는 중복 닉네임",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -89,7 +89,9 @@ public class MemberController {
                     )),
             @ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
@@ -111,7 +113,7 @@ public class MemberController {
     @DeleteMapping("/me")
     @Operation(summary = "회원 탈퇴", description = "현재 로그인 된 사용자의 계정과 관련 데이터를 삭제합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공"),
+            @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공", content = @Content),
             @ApiResponse(responseCode = "400", description = "잘못된 회원 ID",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -119,7 +121,9 @@ public class MemberController {
                     )),
             @ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(

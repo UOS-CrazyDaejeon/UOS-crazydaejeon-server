@@ -40,7 +40,7 @@ public class PlacePhotoController {
     )
     @Operation(summary = "실시간 장소 사진 블러처리 및 업로드", description = "장소 근처에서 촬영한 실시간 사진을 블러처리하고 저장합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "장소 사진 저장 성공"),
+            @ApiResponse(responseCode = "201", description = "장소 사진 저장 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -48,13 +48,21 @@ public class PlacePhotoController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
                             examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
-                    ))
+                    )),
+            @ApiResponse(responseCode = "404", description = "데이터를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND))),
+            @ApiResponse(responseCode = "415", description = "지원하지 않는 이미지 형식",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNSUPPORTED_MEDIA_TYPE)))
     })
     public ResponseEntity<PlacePhotoResponse> uploadPlacePhoto(
             Authentication authentication,
@@ -76,10 +84,12 @@ public class PlacePhotoController {
     @GetMapping("/{placeId}")
     @Operation(summary = "장소별 사진 목록 조회", description = "해당 장소에 등록된 사진을 최신순으로 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "장소별 사진 목록 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "장소별 사진 목록 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "404", description = "장소를 찾을 수 없음",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class))),
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -106,14 +116,18 @@ public class PlacePhotoController {
     @DeleteMapping("/{placePhotoId}")
     @Operation(summary = "장소 사진 삭제", description = "현재 로그인 된 사용자가 올린 장소 사진을 S3와 DB에서 삭제합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "장소 사진 삭제 성공"),
+            @ApiResponse(responseCode = "204", description = "장소 사진 삭제 성공", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "404", description = "장소 사진이 없거나 본인이 등록한 사진이 아님",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류 또는 S3 삭제 실패",
                     content = @Content(

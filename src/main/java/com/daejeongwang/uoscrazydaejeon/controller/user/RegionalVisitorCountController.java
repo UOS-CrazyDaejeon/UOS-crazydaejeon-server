@@ -28,7 +28,7 @@ public class RegionalVisitorCountController {
     @GetMapping()
     @Operation(summary = "날짜별 방문자 수 조회", description = "해당 날짜의 지역 방문자 수를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "방문자 수 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "방문자 수 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),

@@ -33,7 +33,7 @@ public class AdminAuthController {
     @PostMapping("/signup")
     @Operation(summary = "관리자 전용 회원가입", description = "관리자 전용 계정을 생성합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "관리자 회원가입 성공"),
+            @ApiResponse(responseCode = "200", description = "관리자 회원가입 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 관리자 회원가입 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -54,7 +54,7 @@ public class AdminAuthController {
     @PostMapping("/login")
     @Operation(summary = "관리자 전용 로그인", description = "관리자 전용 계정으로 로그인합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "관리자 로그인 성공"),
+            @ApiResponse(responseCode = "200", description = "관리자 로그인 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 관리자 로그인 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -62,7 +62,9 @@ public class AdminAuthController {
                     )),
             @ApiResponse(responseCode = "401", description = "관리자 인증 실패",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(

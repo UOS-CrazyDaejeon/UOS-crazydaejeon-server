@@ -43,6 +43,13 @@ public class AdminCongestionSyncController {
 
     @PostMapping("/congestion/forecast")
     @Operation(summary = "LLM 기반 장소 예상 혼잡도 저장", description = "각 장소에 대한 30일치 LLM 기반 날짜 별 예상 혼잡도를 DB에 저장합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "혼잡도 생성 작업 접수", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)))
+    })
     public ResponseEntity<String> generateCongestionForecasts() {
         congestionService.generateCongestionsAsync();
 

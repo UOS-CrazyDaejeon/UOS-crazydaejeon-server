@@ -33,7 +33,7 @@ public class ReceiptController {
     @PostMapping("/upload-url")
     @Operation(summary = "영수증 업로드 URL 발급", description = "방문 기록에 대한 영수증 이미지 업로드 URL을 발급합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "영수증 업로드 URL 발급 성공"),
+            @ApiResponse(responseCode = "201", description = "영수증 업로드 URL 발급 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 영수증 업로드 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -41,13 +41,24 @@ public class ReceiptController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
                             examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)
-                    ))
+                    )),
+            @ApiResponse(responseCode = "404", description = "데이터를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND))),
+            @ApiResponse(responseCode = "409", description = "요청 상태 충돌",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.CONFLICT))),
+            @ApiResponse(responseCode = "415", description = "지원하지 않는 이미지 형식",
+                    content = @Content(schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNSUPPORTED_MEDIA_TYPE)))
     })
     public ResponseEntity<ReceiptUploadUrlResponse> createUploadUrl(
             Authentication authentication,
@@ -64,7 +75,7 @@ public class ReceiptController {
     @GetMapping("/{receiptId}/status")
     @Operation(summary = "영수증 상태 조회", description = "현재 로그인 된 사용자의 영수증 인증 상태를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "영수증 상태 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "영수증 상태 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 영수증 상태 조회 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -72,7 +83,9 @@ public class ReceiptController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
@@ -90,6 +103,17 @@ public class ReceiptController {
 
     @GetMapping("/me")
     @Operation(summary = "내 영수증 조회", description = "현재 로그인 된 사용자가 등록한 영수증을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "내 영수증 목록 조회 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.BAD_REQUEST))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)))
+    })
     public ResponseEntity<List<ReceiptResponse>> getAllReceipt(
             Authentication authentication,
             @RequestParam Receipt.ReceiptStatus verifyStatus,
@@ -108,6 +132,25 @@ public class ReceiptController {
             summary = "영수증 OCR 처리 요청 및 OCR 결과 저장",
             description = "S3에 업로드된 영수증의 OCR 처리를 요청하고 결과를 저장합니다."
     )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OCR 처리 결과 반환", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.BAD_REQUEST))),
+            @ApiResponse(responseCode = "404", description = "데이터를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.NOT_FOUND))),
+            @ApiResponse(responseCode = "409", description = "요청 상태 충돌",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.CONFLICT))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)))
+    })
     public ResponseEntity<ReceiptOcrResponse> processOcr(
             Authentication authentication,
             @PathVariable Long receiptId

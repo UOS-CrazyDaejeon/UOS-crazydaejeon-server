@@ -33,7 +33,7 @@ public class PlaceController {
     @GetMapping
     @Operation(summary = "전체 장소 조회", description = "대전의 모든 장소를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "전체 장소 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "전체 장소 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -57,7 +57,7 @@ public class PlaceController {
     @GetMapping("/search/local")
     @Operation(summary = "DB 기반 장소 검색", description = "외부 API를 호출하지 않고 DB에 저장된 장소만 검색합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "DB 기반 장소 검색 성공"),
+            @ApiResponse(responseCode = "200", description = "DB 기반 장소 검색 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 검색어",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -82,7 +82,7 @@ public class PlaceController {
     @GetMapping("{placeId}")
     @Operation(summary = "특정 장소 조회", description = "대전의 특정 장소를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "특정 장소 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "특정 장소 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 장소 ID",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -114,7 +114,7 @@ public class PlaceController {
     @GetMapping("/{placeId}/nearby")
     @Operation(summary = "특정 장소의 근처 장소 조회", description = "특정 장소의 근처 장소를 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "근처 장소 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "근처 장소 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -148,7 +148,7 @@ public class PlaceController {
             description = "현재 좌표 기준 1km 이내 장소 중 각 장소의 최신 방문자 수를 기준으로 상위 5개를 조회합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "주변 인기 장소 조회 성공"),
+            @ApiResponse(responseCode = "200", description = "주변 인기 장소 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 위도 또는 경도",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),

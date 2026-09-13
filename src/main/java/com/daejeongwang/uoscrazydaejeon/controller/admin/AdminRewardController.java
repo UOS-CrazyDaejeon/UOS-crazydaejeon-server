@@ -29,7 +29,7 @@ public class AdminRewardController {
     @PostMapping("/save")
     @Operation(summary = "새 상품 등록", description = "새로운 상품을 저장합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "새 상품 등록 성공"),
+            @ApiResponse(responseCode = "200", description = "새 상품 등록 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 상품 등록 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -37,7 +37,9 @@ public class AdminRewardController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
@@ -55,7 +57,7 @@ public class AdminRewardController {
     @PatchMapping("/{rewardItemId}")
     @Operation(summary = "상품 정보 수정", description = "등록된 상품의 정보를 수정합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "상품 정보 수정 성공"),
+            @ApiResponse(responseCode = "200", description = "상품 정보 수정 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 상품 수정 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -63,7 +65,9 @@ public class AdminRewardController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(

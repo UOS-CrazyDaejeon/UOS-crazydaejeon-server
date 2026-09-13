@@ -44,7 +44,7 @@ public class AuthController {
 
     @Operation(summary = "accessToken 갱신", description = "refreshToken을 사용하여 새로운 accessToken을 발급받습니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "accessToken 갱신 성공"),
+            @ApiResponse(responseCode = "200", description = "accessToken 갱신 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 토큰 갱신 요청",
                     content = @Content(
                             schema = @Schema(implementation = ResultDto.class),
@@ -52,7 +52,9 @@ public class AuthController {
                     )),
             @ApiResponse(responseCode = "401", description = "인증 실패",
                     content = @Content(
-                            schema = @Schema(implementation = ResultDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED)
                     )),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(
@@ -67,6 +69,9 @@ public class AuthController {
 
     @Operation(summary = "카카오 로그인 페이지 이동", description = "카카오 OAuth 인증 페이지로 리다이렉트합니다.")
     @GetMapping("/kakao")
+    @ApiResponses({
+            @ApiResponse(responseCode = "302", description = "카카오 인증 페이지로 이동", content = @Content)
+    })
     public ResponseEntity<Void> redirectToKakao() {
         String encodedRedirectUri = URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
 
@@ -81,6 +86,17 @@ public class AuthController {
 
     @Operation(summary = "카카오 로그인", description = "카카오 인가 코드로 로그인하고 JWT 토큰을 발급받습니다.")
     @GetMapping("/login/kakao")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "카카오 로그인 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.BAD_REQUEST))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)))
+    })
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String kakaoAuthorizationCode) {
         LoginResponse response = authService.kakaoLogin(kakaoAuthorizationCode);
 
@@ -111,6 +127,21 @@ public class AuthController {
 
     @Operation(summary = "애플 네이티브 로그인", description = "iOS에서 받은 Apple identityToken을 검증하고 JWT 토큰을 발급받습니다.")
     @PostMapping("/apple")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Apple 로그인 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.BAD_REQUEST))),
+            @ApiResponse(responseCode = "401", description = "인증 실패",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.UNAUTHORIZED))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResultDto.class),
+                            examples = @ExampleObject(value = SwaggerExamples.INTERNAL_SERVER_ERROR)))
+    })
     public ResponseEntity<LoginResponse> appleLogin(@RequestBody AppleLoginRequest request) {
         LoginResponse response = authService.appleLogin(request);
 
