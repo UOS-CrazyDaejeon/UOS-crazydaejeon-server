@@ -3,6 +3,7 @@ package com.daejeongwang.uoscrazydaejeon.controller.user;
 import com.daejeongwang.uoscrazydaejeon.config.SwaggerExamples;
 import com.daejeongwang.uoscrazydaejeon.dto.ResultDto;
 import com.daejeongwang.uoscrazydaejeon.dto.response.ReceiptResponse;
+import com.daejeongwang.uoscrazydaejeon.dto.response.ReceiptOcrResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.ReceiptStatusResponse;
 import com.daejeongwang.uoscrazydaejeon.dto.response.ReceiptUploadUrlResponse;
 import com.daejeongwang.uoscrazydaejeon.entity.Receipt;
@@ -107,14 +108,14 @@ public class ReceiptController {
             summary = "영수증 OCR 처리 요청 및 OCR 결과 저장",
             description = "S3에 업로드된 영수증의 OCR 처리를 요청하고 결과를 저장합니다."
     )
-    public ResponseEntity<ReceiptStatusResponse> processOcr(
+    public ResponseEntity<ReceiptOcrResponse> processOcr(
             Authentication authentication,
             @PathVariable Long receiptId
     ) {
         Long memberId = Long.valueOf(authentication.getName());
 
         ReceiptStatusResponse response = receiptService.processOcr(memberId, receiptId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ReceiptOcrResponse.from(response));
     }
 
 }
