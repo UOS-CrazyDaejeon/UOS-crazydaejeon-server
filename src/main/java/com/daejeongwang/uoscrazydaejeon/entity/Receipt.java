@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -44,9 +44,9 @@ public class Receipt {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    private LocalDateTime verifiedAt;
+    private Instant verifiedAt;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -62,31 +62,32 @@ public class Receipt {
 
     private String ocrPlaceAddress;
 
-    private LocalDateTime ocrPaidAt;
+    private Instant ocrPaidAt;
 
     public void ocrSuccess(
             String ocrPlaceName,
             String ocrPlaceAddress,
-            LocalDateTime ocrPaidAt,
-            boolean approved
+            Instant ocrPaidAt,
+            boolean approved,
+            Instant now
     ) {
         this.ocrStatus = OcrStatus.SUCCESS;
         this.ocrPlaceName = ocrPlaceName;
         this.ocrPlaceAddress = ocrPlaceAddress;
         this.ocrPaidAt = ocrPaidAt;
         this.verifyStatus = approved ? ReceiptStatus.APPROVED : ReceiptStatus.REJECTED;
-        this.verifiedAt = LocalDateTime.now();
+        this.verifiedAt = now;
     }
 
-    public void ocrFailure() {
+    public void ocrFailure(Instant now) {
         this.ocrStatus = OcrStatus.FAILED;
         this.verifyStatus = ReceiptStatus.REJECTED;
-        this.verifiedAt = LocalDateTime.now();
+        this.verifiedAt = now;
     }
 
-    public void expire() {
+    public void expire(Instant now) {
         this.verifyStatus = ReceiptStatus.EXPIRED;
-        this.verifiedAt = LocalDateTime.now();
+        this.verifiedAt = now;
     }
 
 }

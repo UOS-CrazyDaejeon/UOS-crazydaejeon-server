@@ -2,7 +2,7 @@ package com.daejeongwang.uoscrazydaejeon.dto.response;
 
 import com.daejeongwang.uoscrazydaejeon.entity.Receipt;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record ReceiptResponse(
         Long receiptId,
@@ -11,8 +11,8 @@ public record ReceiptResponse(
         String placeName,
         Receipt.ReceiptStatus verifyStatus,
         Receipt.OcrStatus ocrStatus,
-        LocalDateTime createdAt,
-        LocalDateTime verifiedAt,
+        Instant createdAt,
+        Instant verifiedAt,
         Boolean rewardDrawAvailable
 ) {
     public static ReceiptResponse from(Receipt receipt) {

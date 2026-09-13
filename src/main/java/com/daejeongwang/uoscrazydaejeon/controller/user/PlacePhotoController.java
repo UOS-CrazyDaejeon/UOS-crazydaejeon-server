@@ -24,7 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -63,7 +63,7 @@ public class PlacePhotoController {
             @RequestParam Double latitude,
             @RequestParam Double longitude,
             @RequestParam Double accuracy,
-            @RequestParam LocalDateTime measuredAt
+            @RequestParam Instant measuredAt
     ) {
         Long memberId = Long.valueOf(authentication.getName());
         PlacePhotoUploadRequest request = new PlacePhotoUploadRequest(latitude, longitude, accuracy, measuredAt);

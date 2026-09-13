@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.Clock;
+import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class VisitVerificationService {
     private final PlaceRepository placeRepository;
     private final MemberRepository memberRepository;
     private final PlaceProximityVerifier placeProximityVerifier;
+    private final Clock clock;
 
     @Transactional
     public VisitVerificationResponse verifyVisit(Long memberId, Long placeId, VisitVerificationRequest request) {
@@ -42,9 +45,11 @@ public class VisitVerificationService {
                 request.getMeasuredAt()
         );
 
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+        Instant now = clock.instant();
+        ZoneId seoul = ZoneId.of("Asia/Seoul");
+        LocalDate today = now.atZone(seoul).toLocalDate();
+        Instant startOfDay = today.atStartOfDay(seoul).toInstant();
+        Instant endOfDay = today.plusDays(1).atStartOfDay(seoul).toInstant();
 
         boolean alreadyVisited = visitedPlaceRepository
                 .existsByMemberAndPlaceAndVisitedAtGreaterThanEqualAndVisitedAtLessThan(member, place, startOfDay, endOfDay);
@@ -54,6 +59,8 @@ public class VisitVerificationService {
 
         VisitedPlace visitedPlace = VisitedPlace.builder()
                 .member(member)
+                .visitedAt(now)
+                .visitedDate(today)
                 .place(place)
                 .build();
 

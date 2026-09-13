@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_visited_place_member_place_date", columnNames = {"member_id", "place_id", "visited_date"}))
@@ -28,7 +29,7 @@ public class VisitedPlace {
     private Place place;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime visitedAt;
+    private Instant visitedAt;
 
     @Column(name = "visited_date", nullable = false, updatable = false)
     private LocalDate visitedDate;
@@ -36,10 +37,10 @@ public class VisitedPlace {
     @PrePersist
     private void prePersist() {
         if (this.visitedAt == null) {
-            this.visitedAt = LocalDateTime.now();
+            this.visitedAt = Instant.now();
         }
         if (this.visitedDate == null) {
-            this.visitedDate = this.visitedAt.toLocalDate();
+            this.visitedDate = this.visitedAt.atZone(ZoneId.of("Asia/Seoul")).toLocalDate();
         }
     }
 

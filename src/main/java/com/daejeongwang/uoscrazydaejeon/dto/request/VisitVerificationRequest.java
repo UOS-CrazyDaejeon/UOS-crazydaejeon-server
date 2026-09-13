@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor
@@ -17,7 +17,7 @@ public class VisitVerificationRequest {
     private Double longitude;
 
     @NotNull
-    private LocalDateTime measuredAt;
+    private Instant measuredAt;
 
     @NotNull
     private Double accuracy;

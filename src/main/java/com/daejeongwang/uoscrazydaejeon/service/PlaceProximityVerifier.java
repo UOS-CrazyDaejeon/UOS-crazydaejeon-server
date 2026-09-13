@@ -5,19 +5,21 @@ import com.daejeongwang.uoscrazydaejeon.util.DistanceCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
+import java.time.Clock;
+import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
 public class PlaceProximityVerifier {
     private final DistanceCalculator distanceCalculator;
+    private final Clock clock;
 
     private static final double PROXIMITY_RADIUS_METERS  = 250.0;
     private static final double MAX_LOCATION_ACCURACY_METERS = 100.0;
     private static final long MAX_MEASUREMENT_AGE_MINUTES = 5;
 
-    public void verifyNearPlace(Place place, Double latitude, Double longitude, Double accuracy, LocalDateTime measuredAt) {
+    public void verifyNearPlace(Place place, Double latitude, Double longitude, Double accuracy, Instant measuredAt) {
         validateMeasurement(measuredAt, accuracy);
         validateCoordinates(latitude, longitude);
 
@@ -33,7 +35,7 @@ public class PlaceProximityVerifier {
         }
     }
 
-    private void validateMeasurement(LocalDateTime measuredAt, Double accuracy) {
+    private void validateMeasurement(Instant measuredAt, Double accuracy) {
         if (measuredAt == null) {
             throw new IllegalArgumentException("위치 측정 시간이 필요합니다.");
         }
@@ -44,11 +46,11 @@ public class PlaceProximityVerifier {
             throw new IllegalArgumentException("위치 정확도가 충분하지 않습니다.");
         }
 
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        Instant now = clock.instant();
         if (measuredAt.isAfter(now)) {
             throw new IllegalArgumentException("위치 측정 시간이 현재보다 이후일 수 없습니다.");
         }
-        if (measuredAt.isBefore(now.minusMinutes(MAX_MEASUREMENT_AGE_MINUTES))) {
+        if (measuredAt.isBefore(now.minus(Duration.ofMinutes(MAX_MEASUREMENT_AGE_MINUTES)))) {
             throw new IllegalArgumentException("위치 측정 정보가 너무 오래되었습니다.");
         }
     }

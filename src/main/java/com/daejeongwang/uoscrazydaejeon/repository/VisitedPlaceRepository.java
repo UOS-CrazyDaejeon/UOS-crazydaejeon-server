@@ -10,12 +10,12 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 public interface VisitedPlaceRepository extends JpaRepository<VisitedPlace,Long> {
-    boolean existsByMemberAndPlaceAndVisitedAtGreaterThanEqualAndVisitedAtLessThan(Member member, Place place, LocalDateTime start, LocalDateTime end);
+    boolean existsByMemberAndPlaceAndVisitedAtGreaterThanEqualAndVisitedAtLessThan(Member member, Place place, Instant start, Instant end);
     Optional<VisitedPlace> findByIdAndMember_Id(Long visitedPlaceId, Long memberId);
 
     @EntityGraph(attributePaths = "place")

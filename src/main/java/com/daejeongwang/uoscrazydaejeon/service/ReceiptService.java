@@ -26,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +42,8 @@ public class ReceiptService {
     private final AddressApiClient addressApiClient;
     private final DistanceCalculator distanceCalculator;
     private final AiServerClient aiServerClient;
+    private final Clock clock;
+    private static final ZoneId SEOUL = ZoneId.of("Asia/Seoul");
 
     private static final Duration PENDING_VALID_DURATION = Duration.ofMinutes(5);
 
@@ -51,7 +55,7 @@ public class ReceiptService {
         VisitedPlace visitedPlace = visitedPlaceRepository.findByIdAndMemberIdForUpdate(visitedPlaceId, member.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("방문 기록이 없거나 본인의 방문 기록이 아닙니다."));
 
-        boolean visitIsToday = visitedPlace.getVisitedDate().equals(LocalDate.now());
+        boolean visitIsToday = visitedPlace.getVisitedDate().equals(LocalDate.now(clock.withZone(SEOUL)));
 
         if (!visitIsToday) {
             throw new ConflictException("방문 인증 당일에만 영수증을 등록할 수 있습니다.");
@@ -137,7 +141,7 @@ public class ReceiptService {
         }
 
         if (isExpired(receipt)) {
-            receipt.expire();
+            receipt.expire(clock.instant());
             throw new ConflictException("영수증 인증 요청이 만료되었습니다.");
         }
 
@@ -180,7 +184,7 @@ public class ReceiptService {
         }
 
         if (isExpired(receipt)) {
-            receipt.expire();
+            receipt.expire(clock.instant());
             return;
         }
         if(receipt.getOcrStatus() != Receipt.OcrStatus.PENDING) { return; }
@@ -189,7 +193,7 @@ public class ReceiptService {
             throw new IllegalArgumentException("완료되지 않은 OCR 상태입니다.");
         }
         if(result.getOcrStatus() == Receipt.OcrStatus.FAILED) {
-            receipt.ocrFailure();
+            receipt.ocrFailure(clock.instant());
             return;
         }
         if (result.getOcrStatus() != Receipt.OcrStatus.SUCCESS) {
@@ -224,16 +228,19 @@ public class ReceiptService {
             placeMatched = distance <= 100;
         }
 
-        boolean paidOnVisitedDate = result.getOcrPaidAt().toLocalDate().isEqual(receipt.getVisitedPlace().getVisitedDate());
+        // OCR returns the local wall-clock time printed on a Korean receipt.
+        Instant paidAt = result.getOcrPaidAt().atZone(SEOUL).toInstant();
+        boolean paidOnVisitedDate = paidAt.atZone(SEOUL).toLocalDate()
+                .isEqual(receipt.getVisitedPlace().getVisitedDate());
         boolean valid = placeMatched && paidOnVisitedDate;
 
-        receipt.ocrSuccess(result.getOcrPlaceName(), result.getOcrPlaceAddress(), result.getOcrPaidAt(), valid);
+        receipt.ocrSuccess(result.getOcrPlaceName(), result.getOcrPlaceAddress(), paidAt, valid, clock.instant());
     }
 
     private boolean isExpired(Receipt receipt) {
         return receipt.getVerifyStatus() == Receipt.ReceiptStatus.PENDING
                 && receipt.getOcrStatus() == Receipt.OcrStatus.PENDING
-                && !receipt.getCreatedAt().plus(PENDING_VALID_DURATION).isAfter(LocalDateTime.now());
+                && !receipt.getCreatedAt().plus(PENDING_VALID_DURATION).isAfter(clock.instant());
     }
 
     private void expirePendingReceipt(VisitedPlace visitedPlace) {
@@ -247,7 +254,7 @@ public class ReceiptService {
         if (pendingReceipt == null) {return;}
 
         if (isExpired(pendingReceipt)) {
-            pendingReceipt.expire();
+            pendingReceipt.expire(clock.instant());
             return;
         }
 

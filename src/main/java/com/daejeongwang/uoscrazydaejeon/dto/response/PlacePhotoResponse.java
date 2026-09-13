@@ -3,7 +3,7 @@ package com.daejeongwang.uoscrazydaejeon.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Builder
@@ -12,5 +12,5 @@ public class PlacePhotoResponse {
     private Long placeId;
     private String placeName;
     private String imageUrl;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

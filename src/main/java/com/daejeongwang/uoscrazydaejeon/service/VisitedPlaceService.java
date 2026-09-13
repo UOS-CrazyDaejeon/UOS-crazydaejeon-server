@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,11 +22,12 @@ import java.util.stream.Collectors;
 public class VisitedPlaceService {
     private final VisitedPlaceRepository visitedPlaceRepository;
     private final ReceiptRepository receiptRepository;
+    private final Clock clock;
 
     private static final Duration PENDING_VALID_DURATION = Duration.ofMinutes(5);
 
     public List<VisitedPlaceListResponse> getMyVisitedPlaces(Long memberId) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = clock.instant();
 
         List<VisitedPlace> visitedPlaces = visitedPlaceRepository.findAllByMember_IdOrderByVisitedAtDesc(memberId);
         if (visitedPlaces.isEmpty()) {
@@ -60,7 +63,7 @@ public class VisitedPlaceService {
 
     }
 
-    private VisitedPlaceListResponse.ReceiptAvailability getReceiptAvailability(VisitedPlace visitedPlace, List<Receipt> receipts, LocalDateTime now) {
+    private VisitedPlaceListResponse.ReceiptAvailability getReceiptAvailability(VisitedPlace visitedPlace, List<Receipt> receipts, Instant now) {
         boolean hasApprovedReceipt = receipts.stream()
                 .anyMatch(receipt -> receipt.getVerifyStatus() == Receipt.ReceiptStatus.APPROVED);
         if (hasApprovedReceipt) {
@@ -77,7 +80,7 @@ public class VisitedPlaceService {
             return VisitedPlaceListResponse.ReceiptAvailability.PROCESSING;
         }
 
-        LocalDate today = now.toLocalDate();
+        LocalDate today = now.atZone(ZoneId.of("Asia/Seoul")).toLocalDate();
 
         if (visitedPlace.getVisitedDate().equals(today)) {
             return VisitedPlaceListResponse.ReceiptAvailability.AVAILABLE;

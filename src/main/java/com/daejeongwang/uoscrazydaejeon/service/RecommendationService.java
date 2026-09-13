@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -125,7 +126,7 @@ public class RecommendationService {
                 .stream()
                 .map(visitedPlace -> toRecommendationPlaceRequest(
                         visitedPlace.getPlace(),
-                        visitedPlace.getVisitedAt()
+                        LocalDateTime.ofInstant(visitedPlace.getVisitedAt(), ZoneId.of("Asia/Seoul"))
                 ))
                 .toList();
 
