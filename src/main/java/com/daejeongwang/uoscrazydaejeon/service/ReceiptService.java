@@ -175,6 +175,9 @@ public class ReceiptService {
                 .gachaAvailable(
                         receipt.getVerifyStatus() == Receipt.ReceiptStatus.APPROVED
                 )
+                // TODO: AI OCR 원문 정보 임시 응답
+                .ocrPlaceAddress(receipt.getOcrPlaceAddress())
+                .ocrPaidAt(receipt.getOcrPaidAt())
                 .build();
     }
 
