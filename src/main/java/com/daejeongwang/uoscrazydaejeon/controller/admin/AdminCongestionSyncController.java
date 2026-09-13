@@ -44,8 +44,8 @@ public class AdminCongestionSyncController {
     @PostMapping("/congestion/forecast")
     @Operation(summary = "LLM 기반 장소 예상 혼잡도 저장", description = "각 장소에 대한 30일치 LLM 기반 날짜 별 예상 혼잡도를 DB에 저장합니다.")
     public ResponseEntity<String> generateCongestionForecasts() {
-        congestionService.generateCongestions();
+        congestionService.generateCongestionsAsync();
 
-        return ResponseEntity.ok("향후 30일 혼잡도 예측 저장 완료");
+        return ResponseEntity.accepted().body("LLM 기반 혼잡도 예측 생성 작업을 시작했습니다.");
     }
 }

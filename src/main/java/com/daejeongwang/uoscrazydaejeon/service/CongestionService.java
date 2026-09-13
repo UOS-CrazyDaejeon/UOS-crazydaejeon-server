@@ -8,8 +8,8 @@ import com.daejeongwang.uoscrazydaejeon.entity.Place;
 import com.daejeongwang.uoscrazydaejeon.repository.CongestionRepository;
 import com.daejeongwang.uoscrazydaejeon.repository.PlaceRepository;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,17 +18,18 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
-
-import static java.util.stream.Collectors.toList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CongestionService {
 
     private final CongestionApiClient congestionApiClient;
     private final CongestionRepository congestionRepository;
     private final PlaceRepository placeRepository;
     private final OpenAiClient openAiClient;
+    private final AtomicBoolean congestionGenerationRunning = new AtomicBoolean(false);
 
     @Transactional
     public void syncCongestions() {
@@ -99,6 +100,25 @@ public class CongestionService {
                         .congestionRate(rate)
                         .build());
             }
+        }
+    }
+
+    @Async
+    @Transactional
+    public void generateCongestionsAsync() {
+        if(!congestionGenerationRunning.compareAndSet(false, true)) {
+            log.warn("LLM 기반 혼잡도 예측 생성 작업이 이미 실행 중입니다.");
+            return;
+        }
+
+        try {
+            log.info("LLM 기반 혼잡도 예측 생성 작업을 시작합니다.");
+            generateCongestions();
+            log.info("LLM 기반 혼잡도 예측 생성 작업을 완료했습니다.");
+        } catch (Exception e) {
+            log.error("LLM 기반 혼잡도 예측 생성 작업에 실패했습니다.", e);
+        } finally {
+            congestionGenerationRunning.set(false);
         }
     }
 
